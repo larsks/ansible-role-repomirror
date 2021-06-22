@@ -1,0 +1,6 @@
+[Unit]
+Description=Update local repository mirrors
+
+[Service]
+Type=simple
+ExecStart=/etc/scripts/reposync-all.sh

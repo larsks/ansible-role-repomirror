@@ -1,0 +1,7 @@
+[Service]
+Type=simple
+ExecStart=/etc/scripts/run-rhel8-container.sh
+ExecStop=/usr/bin/podman stop rhel8
+
+[Install]
+WantedBy=multi-user.target

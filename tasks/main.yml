@@ -1,0 +1,47 @@
+- name: ensure repo mountpoint
+  file:
+    path: /srv/repos
+    state: directory
+    mode: "0755"
+
+- name: ensure repo mount
+  mount:
+    src: /dev/tank/repos
+    path: /srv/repos
+    fstype: xfs
+    opts: defaults
+    state: mounted
+
+- name: install apache configuration
+  template:
+    src: repos.conf
+    dest: /etc/httpd/conf.d/repos.conf
+    mode: "0644"
+  notify: restart httpd
+
+- name: install reposync scripts
+  template:
+    src: "{{ item }}"
+    dest: /etc/scripts/
+    mode: "0755"
+  loop:
+    - reposync-all.sh
+    - reposync-rhel7.sh
+    - reposync-rhel8.sh
+    - run-rhel8-container.sh
+
+- name: install reposync systemd units
+  copy:
+    src: "{{ item }}"
+    dest: /etc/systemd/system/
+    mode: "0644"
+  notify: reload systemd
+  loop:
+    - reposync.service
+    - reposync.timer
+
+- name: activate reposync timer
+  service:
+    name: reposync.timer
+    state: started
+    enabled: true
